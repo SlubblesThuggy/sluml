@@ -37,3 +37,6 @@ pub use vec3::*;
 
 pub mod vec4;
 pub use vec4::*;
+
+#[cfg(test)]
+mod test;
