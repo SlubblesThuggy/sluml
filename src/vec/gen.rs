@@ -98,6 +98,12 @@ macro_rules! impl_vec {
                 }
             }
         }
+
+        impl AddAssign for $name {
+            fn add_assign(&mut self, rhs: Self) {
+                *self = self.add(rhs)
+            }
+        }
     };
 
     (@sub $name:ident, $($m:ident),*) => {
@@ -110,6 +116,12 @@ macro_rules! impl_vec {
                         $m: self.$m - rhs.$m,
                     )*
                 }
+            }
+        }
+
+        impl SubAssign for $name {
+            fn sub_assign(&mut self, rhs: Self) {
+                *self = self.sub(rhs)
             }
         }
     };
@@ -127,6 +139,12 @@ macro_rules! impl_vec {
             }
         }
 
+        impl MulAssign for $name {
+            fn mul_assign(&mut self, rhs: Self) {
+                *self = self.mul(rhs)
+            }
+        }
+
         impl Mul<$T> for $name {
             type Output = Self;
 
@@ -136,6 +154,12 @@ macro_rules! impl_vec {
                         $m: self.$m * rhs,
                     )*
                 }
+            }
+        }
+
+        impl MulAssign<$T> for $name {
+            fn mul_assign(&mut self, rhs: $T) {
+                *self = self.mul(rhs)
             }
         }
     };
@@ -153,6 +177,12 @@ macro_rules! impl_vec {
             }
         }
 
+        impl DivAssign for $name {
+            fn div_assign(&mut self, rhs: Self) {
+                *self = self.div(rhs)
+            }
+        }
+
         impl Div<$T> for $name {
             type Output = Self;
 
@@ -162,6 +192,12 @@ macro_rules! impl_vec {
                         $m: self.$m / rhs,
                     )*
                 }
+            }
+        }
+
+        impl DivAssign<$T> for $name {
+            fn div_assign(&mut self, rhs: $T) {
+                *self = self.div(rhs)
             }
         }
     };
