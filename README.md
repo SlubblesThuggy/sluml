@@ -5,7 +5,7 @@ Sluml is a library for the rust programming language. The goal is to provide dep
 
 ## How to use
 
-The project is currently not uploaded to crates.io. Instead you can specify the github link in your ``Cargo.lock`` file:
+The project is currently not uploaded to crates.io. Instead you can specify the github link in your ``Cargo.lock`` file in a cargo rust project:
 ```toml
 [dependencies]
 sluml = { git = "https://github.com/SlubblesThuggy/sluml" }
@@ -26,4 +26,4 @@ Distributed under the MIT license. See ``LICENSE`` for more information.
 
 ## Contributing
 
-Contributing is currently not supported, but is planned to be once the groundwork is layed out.
+Contributing is currently not supported.

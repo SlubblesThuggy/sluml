@@ -1,6 +1,6 @@
 use super::*;
 
-gen_vec!(Vec4f32, f32, x, y, z, w);
+gen_vec!(Vec4f32, f32; x, y, z, w);
 
 impl From<Vec4f64> for Vec4f32 {
     fn from(other: Vec4f64) -> Self {
@@ -57,7 +57,7 @@ impl From<Vec2f64> for Vec4f32 {
     }
 }
 
-gen_vec!(Vec4f64, f64, x, y, z, w);
+gen_vec!(Vec4f64, f64; x, y, z, w);
 
 impl From<Vec4f32> for Vec4f64 {
     fn from(other: Vec4f32) -> Self {

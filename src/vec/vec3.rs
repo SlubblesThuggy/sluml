@@ -1,7 +1,7 @@
 use super::*;
 
-gen_vec!(Vec3f32, f32, x, y, z);
-impl_vec!(@cross_vec3 Vec3f32, f32, x, y, z);
+gen_vec!(Vec3f32, f32; x, y, z);
+impl_vec!(@cross_vec3 Vec3f32, f32; x, y, z);
 
 impl From<Vec3f64> for Vec3f32 {
     fn from(other: Vec3f64) -> Self {
@@ -53,8 +53,8 @@ impl From<Vec4f64> for Vec3f32 {
     }
 }
 
-gen_vec!(Vec3f64, f64, x, y, z);
-impl_vec!(@cross_vec3 Vec3f64, f64, x, y, z);
+gen_vec!(Vec3f64, f64; x, y, z);
+impl_vec!(@cross_vec3 Vec3f64, f64; x, y, z);
 
 impl From<Vec3f32> for Vec3f64 {
     fn from(other: Vec3f32) -> Self {
