@@ -1,7 +1,7 @@
 # sluml
->A rust math library
+>A Rust math library
 
-Sluml is a library for the rust programming language. The goal is to provide dependency-free math-related tools to ease the production of, primarily, simulations.
+Sluml is a library for the Rust programming language. The goal is to provide dependency-free math-related tools to ease the production of, primarily, simulations.
 
 ## How to use
 
