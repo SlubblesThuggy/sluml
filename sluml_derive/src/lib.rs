@@ -44,3 +44,11 @@ pub fn div_derive(input: TokenStream) -> TokenStream {
     
     vec::gen_div_derive(name, data, inner_type, generics).into()
 }
+
+#[proc_macro_derive(Neg)]
+pub fn neg_derive(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    let (name, data, _, generics) = vec::parse_derive_input(input);
+    
+    vec::gen_neg_derive(name, data, generics).into()
+}

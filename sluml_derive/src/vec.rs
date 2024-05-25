@@ -231,3 +231,29 @@ pub fn gen_div_derive(name: Ident, data: DataStruct, inner_type: Type, generics:
         }
     )
 }
+
+pub fn gen_neg_derive(name: Ident, data: DataStruct, generics: Generics) -> TokenStream2 {
+    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
+
+    let mut neg_params = TokenStream2::new();
+    for field in data.fields.iter() {
+        let field_ident = field.ident.as_ref().unwrap();
+
+        quote!(
+            #field_ident: -self.#field_ident,
+        )
+        .to_tokens(&mut neg_params);
+    }
+
+    quote!(
+        impl #impl_generics ::std::ops::Neg for #name #ty_generics #where_clause {
+            type Output = Self;
+
+            fn neg(self) -> Self {
+                Self {
+                    #neg_params
+                }
+            }
+        }
+    )
+}

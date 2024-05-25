@@ -48,12 +48,15 @@ fn div() {
     );
 }
 
-/*
 #[test]
 fn neg() {
-    assert_eq!(-Vec4f32::new(1f32, 2f32, 3f32, 4f32), Vec4f32::new(-1f32, -2f32, -3f32, -4f32));
+    assert_eq!(
+        -Vec4::<f32>::new(1f32, 2f32, 3f32, 4f32),
+        Vec4::<f32>::new(-1f32, -2f32, -3f32, -4f32)
+    );
 }
 
+/*
 #[test]
 fn dot() {
     assert_eq!(

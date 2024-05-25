@@ -26,7 +26,15 @@ pub trait Normalize<T>: Sized + Div<T, Output = Self> + Magnitude<T> {
     }
 }
 
-pub trait VecInner: Copy + Add<Output = Self> + Sub<Output = Self> + Mul<Output = Self> + Div<Output = Self> {}
+pub trait VecInner:
+    Copy
+    + Add<Output = Self>
+    + Sub<Output = Self>
+    + Mul<Output = Self>
+    + Div<Output = Self>
+    + Neg<Output = Self>
+{
+}
 
 impl VecInner for f32 {}
 impl VecInner for f64 {}
