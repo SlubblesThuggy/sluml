@@ -1,2 +1,4 @@
 /target
 /Cargo.lock
+/sluml_derive/target
+/sluml_derive/Cargo.lock

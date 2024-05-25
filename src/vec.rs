@@ -26,14 +26,10 @@ pub trait Normalize<T>: Sized + Div<T, Output = Self> + Magnitude<T> {
     }
 }
 
-mod gen;
-use gen::*;
+pub trait VecInner: Copy + Add<Output = Self> + Sub<Output = Self> + Mul<Output = Self> + Div<Output = Self> {}
 
-pub mod vec2;
-pub use vec2::*;
-
-pub mod vec3;
-pub use vec3::*;
+impl VecInner for f32 {}
+impl VecInner for f64 {}
 
 pub mod vec4;
 pub use vec4::*;

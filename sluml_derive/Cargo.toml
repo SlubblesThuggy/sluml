@@ -1,0 +1,13 @@
+[package]
+name = "sluml_derive"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "*"
+derive-syn-parse = "0.1.5"
+quote = "*"
+syn = { version = "*", features = ["full", "extra-traits"]}
