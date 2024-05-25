@@ -9,7 +9,7 @@ mod vec;
 pub fn index_mut_derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let (name, data, inner_type, generics) = vec::parse_derive_input(input);
-    
+
     vec::gen_index_mut_derive(name, data, inner_type, generics).into()
 }
 
@@ -25,7 +25,7 @@ pub fn add_derive(input: TokenStream) -> TokenStream {
 pub fn sub_derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let (name, data, _, generics) = vec::parse_derive_input(input);
-    
+
     vec::gen_sub_derive(name, data, generics).into()
 }
 
@@ -33,7 +33,7 @@ pub fn sub_derive(input: TokenStream) -> TokenStream {
 pub fn mul_derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let (name, data, inner_type, generics) = vec::parse_derive_input(input);
-    
+
     vec::gen_mul_derive(name, data, inner_type, generics).into()
 }
 
@@ -41,7 +41,7 @@ pub fn mul_derive(input: TokenStream) -> TokenStream {
 pub fn div_derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let (name, data, inner_type, generics) = vec::parse_derive_input(input);
-    
+
     vec::gen_div_derive(name, data, inner_type, generics).into()
 }
 
@@ -49,6 +49,14 @@ pub fn div_derive(input: TokenStream) -> TokenStream {
 pub fn neg_derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let (name, data, _, generics) = vec::parse_derive_input(input);
-    
+
     vec::gen_neg_derive(name, data, generics).into()
+}
+
+#[proc_macro_derive(Dot)]
+pub fn dot_derive(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    let (name, data, inner_type, generics) = vec::parse_derive_input(input);
+
+    vec::gen_dot_derive(name, data, inner_type, generics).into()
 }

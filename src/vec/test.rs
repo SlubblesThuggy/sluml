@@ -56,15 +56,15 @@ fn neg() {
     );
 }
 
-/*
 #[test]
 fn dot() {
     assert_eq!(
-        Vec4f32::new(4f32, 5f32, 6f32, 16f32).dot(Vec4f32::new(2f32, 1f32, 12f32, 4f32)),
+        Vec4::<f32>::new(4f32, 5f32, 6f32, 16f32).dot(Vec4::<f32>::new(2f32, 1f32, 12f32, 4f32)),
         4f32 * 2f32 + 5f32 * 1f32 + 6f32 * 12f32 + 16f32 * 4f32
     );
 }
 
+/*
 #[test]
 fn magnitude() {
     let v = Vec4f32::new(-4f32, -5f32, 6f32, 16f32);

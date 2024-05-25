@@ -12,6 +12,7 @@ use super::*;
     sluml_derive::Mul,
     sluml_derive::Div,
     sluml_derive::Neg,
+    sluml_derive::Dot,
 )]
 pub struct Vec4<T: VecInner> {
     pub x: T,

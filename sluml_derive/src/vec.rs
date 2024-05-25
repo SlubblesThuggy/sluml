@@ -18,7 +18,12 @@ pub fn parse_derive_input(input: DeriveInput) -> (Ident, DataStruct, Type, Gener
     (input.ident, data, inner_type.unwrap(), input.generics)
 }
 
-pub fn gen_index_mut_derive(name: Ident, data: DataStruct, inner_type: Type, generics: Generics) -> TokenStream2 {
+pub fn gen_index_mut_derive(
+    name: Ident,
+    data: DataStruct,
+    inner_type: Type,
+    generics: Generics,
+) -> TokenStream2 {
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     let mut match_arms = TokenStream2::new();
@@ -41,7 +46,7 @@ pub fn gen_index_mut_derive(name: Ident, data: DataStruct, inner_type: Type, gen
         impl #impl_generics ::std::ops::Index<usize> for #name #ty_generics #where_clause {
             type Output = #inner_type;
 
-            fn index(&self, index: usize) -> &Self::Output {
+            fn index(&self, index: usize) -> &#inner_type {
                 match index {
                     #match_arms
                     _ => panic!("Tried to index non-existent vector component.")
@@ -50,7 +55,7 @@ pub fn gen_index_mut_derive(name: Ident, data: DataStruct, inner_type: Type, gen
         }
 
         impl #impl_generics ::std::ops::IndexMut<usize> for #name #ty_generics #where_clause  {
-            fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+            fn index_mut(&mut self, index: usize) -> &mut #inner_type {
                 match index {
                     #mut_match_arms
                     _ => panic!("Tried to index non-existent vector component.")
@@ -124,7 +129,12 @@ pub fn gen_sub_derive(name: Ident, data: DataStruct, generics: Generics) -> Toke
     )
 }
 
-pub fn gen_mul_derive(name: Ident, data: DataStruct, inner_type: Type, generics: Generics) -> TokenStream2 {
+pub fn gen_mul_derive(
+    name: Ident,
+    data: DataStruct,
+    inner_type: Type,
+    generics: Generics,
+) -> TokenStream2 {
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     let mut mul_params = TokenStream2::new();
@@ -178,7 +188,12 @@ pub fn gen_mul_derive(name: Ident, data: DataStruct, inner_type: Type, generics:
     )
 }
 
-pub fn gen_div_derive(name: Ident, data: DataStruct, inner_type: Type, generics: Generics) -> TokenStream2 {
+pub fn gen_div_derive(
+    name: Ident,
+    data: DataStruct,
+    inner_type: Type,
+    generics: Generics,
+) -> TokenStream2 {
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     let mut div_params = TokenStream2::new();
@@ -253,6 +268,39 @@ pub fn gen_neg_derive(name: Ident, data: DataStruct, generics: Generics) -> Toke
                 Self {
                     #neg_params
                 }
+            }
+        }
+    )
+}
+
+pub fn gen_dot_derive(
+    name: Ident,
+    data: DataStruct,
+    inner_type: Type,
+    generics: Generics,
+) -> TokenStream2 {
+    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
+
+    let mut dot_expr = TokenStream2::new();
+    for (i, field) in data.fields.iter().enumerate() {
+        let field_ident = field.ident.as_ref().unwrap();
+
+        if i != 0 {
+            quote!(+).to_tokens(&mut dot_expr);
+        }
+
+        quote!(
+            self.#field_ident * rhs.#field_ident
+        )
+        .to_tokens(&mut dot_expr);
+    }
+
+    quote!(
+        impl #impl_generics crate::vec::Dot for #name #ty_generics #where_clause {
+            type Output = #inner_type;
+
+            fn dot(self, rhs: Self) -> #inner_type {
+                #dot_expr
             }
         }
     )
