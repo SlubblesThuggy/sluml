@@ -26,3 +26,12 @@ impl<T: VecInner> Vec4<T> {
         Self { x, y, z, w }
     }
 }
+
+impl<T: VecInner> SqMagnitude<T> for Vec4<T> {}
+impl<T: VecInner + Float> Magnitude<T> for Vec4<T> {
+    fn magnitude(self) -> T {
+        self.sq_magnitude().sqrt()
+    }
+}
+
+impl<T: VecInner + Float> Normalize<T> for Vec4<T> {}

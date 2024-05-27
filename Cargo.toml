@@ -5,3 +5,4 @@ edition = "2021"
 
 [dependencies]
 sluml_derive = { path = "sluml_derive/" }
+num-traits = "0.2"

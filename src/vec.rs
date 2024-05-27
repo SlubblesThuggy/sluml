@@ -12,11 +12,13 @@ pub trait Cross<Rhs = Self>: Sized {
     fn cross(self, rhs: Rhs) -> Self::Output;
 }
 
-pub trait Magnitude<T>: Clone + Copy + Dot<Output = T> {
+pub trait SqMagnitude<T>: Copy + Dot<Output = T> {
     fn sq_magnitude(self) -> T {
         self.dot(self)
     }
+}
 
+pub trait Magnitude<T>: SqMagnitude<T> {
     fn magnitude(self) -> T;
 }
 

@@ -1,3 +1,5 @@
+use std::f32::consts::SQRT_2;
+
 use super::*;
 
 // Testing of most macro generated functions will currently only be done for Vec4.
@@ -64,10 +66,9 @@ fn dot() {
     );
 }
 
-/*
 #[test]
 fn magnitude() {
-    let v = Vec4f32::new(-4f32, -5f32, 6f32, 16f32);
+    let v = Vec4::<f32>::new(-4f32, -5f32, 6f32, 16f32);
     let sqm = -4f32 * -4f32 + -5f32 * -5f32 + 6f32 * 6f32 + 16f32 * 16f32;
     let m = sqm.sqrt();
 
@@ -78,11 +79,12 @@ fn magnitude() {
 #[test]
 fn normalize() {
     assert_eq!(
-        Vec4f32::new(0f32, 1f32, 0f32, 1f32).normalize(),
-        Vec4f32::new(0f32, 1f32 / SQRT_2, 0f32, 1f32 / SQRT_2)
+        Vec4::<f32>::new(0f32, 1f32, 0f32, 1f32).normalize(),
+        Vec4::<f32>::new(0f32, 1f32 / SQRT_2, 0f32, 1f32 / SQRT_2)
     );
 }
 
+/*
 #[test]
 fn cross() {
     assert_eq!(
