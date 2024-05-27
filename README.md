@@ -18,7 +18,7 @@ sluml = { path = "../sluml" }
 
 ## Development setup
 
-This project aims to use as few dependencies as possible, but those that are should be preconfigured in the ``Cargo.lock`` file and cargo should install them automatically for you.
+This project aims to use as few dependencies as possible, but those that are should be preconfigured in the ``Cargo.toml`` files and cargo should install them automatically for you.
 
 ## License
 
