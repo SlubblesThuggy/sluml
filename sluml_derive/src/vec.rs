@@ -1,34 +1,31 @@
 use super::*;
 
-pub fn parse_derive_input(input: DeriveInput) -> (Ident, DataStruct, Type, Generics) {
-    let Data::Struct(data) = input.data else {
-        panic!()
+pub fn parse_derive_input(input: &DeriveInput) -> (&DataStruct, &Type) {
+    let Data::Struct(ref data) = input.data else {
+        panic!("Must be called on struct.")
     };
 
-    let mut inner_type: Option<Type> = None;
+    let mut inner_type: Option<&Type> = None;
 
     for field in data.fields.iter() {
         if inner_type.is_none() {
-            inner_type = Some(field.ty.clone())
-        } else if *inner_type.as_ref().unwrap() != field.ty {
+            inner_type = Some(&field.ty)
+        } else if *inner_type.unwrap() != field.ty {
             panic!("All members must be the same type.")
         }
     }
 
-    (input.ident, data, inner_type.unwrap(), input.generics)
+    (data, inner_type.unwrap())
 }
 
-pub fn gen_index_mut_derive(
-    name: Ident,
-    data: DataStruct,
-    inner_type: Type,
-    generics: Generics,
+pub fn gen_index_mut_impls(
+    name: &Ident,
+    data_struct: &DataStruct,
+    inner_type: &Type,
 ) -> TokenStream2 {
-    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
-
     let mut match_arms = TokenStream2::new();
     let mut mut_match_arms = TokenStream2::new();
-    for (i, field) in data.fields.iter().enumerate() {
+    for (i, field) in data_struct.fields.iter().enumerate() {
         let field_ident = field.ident.as_ref().unwrap();
 
         quote!(
@@ -43,31 +40,29 @@ pub fn gen_index_mut_derive(
     }
 
     quote!(
-        impl #impl_generics ::std::ops::Index<usize> for #name #ty_generics #where_clause {
+        impl<#inner_type> ::std::ops::Index<usize> for #name<#inner_type> {
             type Output = #inner_type;
 
             fn index(&self, index: usize) -> &#inner_type {
                 match index {
                     #match_arms
-                    _ => panic!("Tried to index non-existent vector component.")
+                    _ => panic!("Tried to index a non-existent vector component.")
                 }
             }
         }
 
-        impl #impl_generics ::std::ops::IndexMut<usize> for #name #ty_generics #where_clause  {
+        impl<#inner_type> ::std::ops::IndexMut<usize> for #name<#inner_type> {
             fn index_mut(&mut self, index: usize) -> &mut #inner_type {
                 match index {
                     #mut_match_arms
-                    _ => panic!("Tried to index non-existent vector component.")
+                    _ => panic!("Tried to index a non-existent vector component.")
                 }
             }
         }
     )
 }
 
-pub fn gen_add_derive(name: Ident, data: DataStruct, generics: Generics) -> TokenStream2 {
-    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
-
+pub fn gen_add_impls(name: &Ident, data: &DataStruct, inner_type: &Type) -> TokenStream2 {
     let mut add_params = TokenStream2::new();
     for field in data.fields.iter() {
         let field_ident = field.ident.as_ref().unwrap();
@@ -79,7 +74,7 @@ pub fn gen_add_derive(name: Ident, data: DataStruct, generics: Generics) -> Toke
     }
 
     quote!(
-        impl #impl_generics ::std::ops::Add for #name #ty_generics #where_clause {
+        impl<#inner_type: Copy + ::std::ops::Add<Output = #inner_type>> ::std::ops::Add for #name<#inner_type> {
             type Output = Self;
 
             fn add(self, rhs: Self) -> Self {
@@ -89,7 +84,7 @@ pub fn gen_add_derive(name: Ident, data: DataStruct, generics: Generics) -> Toke
             }
         }
 
-        impl #impl_generics ::std::ops::AddAssign for #name #ty_generics #where_clause {
+        impl<#inner_type: Copy + ::std::ops::Add<Output = #inner_type>> ::std::ops::AddAssign for #name<#inner_type> {
             fn add_assign(&mut self, rhs: Self) {
                 *self = self.add(rhs)
             }
@@ -97,9 +92,7 @@ pub fn gen_add_derive(name: Ident, data: DataStruct, generics: Generics) -> Toke
     )
 }
 
-pub fn gen_sub_derive(name: Ident, data: DataStruct, generics: Generics) -> TokenStream2 {
-    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
-
+pub fn gen_sub_impls(name: &Ident, data: &DataStruct, inner_type: &Type) -> TokenStream2 {
     let mut sub_params = TokenStream2::new();
     for field in data.fields.iter() {
         let field_ident = field.ident.as_ref().unwrap();
@@ -111,7 +104,7 @@ pub fn gen_sub_derive(name: Ident, data: DataStruct, generics: Generics) -> Toke
     }
 
     quote!(
-        impl #impl_generics ::std::ops::Sub for #name #ty_generics #where_clause {
+        impl<#inner_type: Copy + ::std::ops::Sub<Output = #inner_type>> ::std::ops::Sub for #name<#inner_type> {
             type Output = Self;
 
             fn sub(self, rhs: Self) -> Self {
@@ -121,7 +114,7 @@ pub fn gen_sub_derive(name: Ident, data: DataStruct, generics: Generics) -> Toke
             }
         }
 
-        impl #impl_generics ::std::ops::SubAssign for #name #ty_generics #where_clause {
+        impl<#inner_type: Copy + ::std::ops::Sub<Output = #inner_type>> ::std::ops::SubAssign for #name<#inner_type> {
             fn sub_assign(&mut self, rhs: Self) {
                 *self = self.sub(rhs)
             }
@@ -129,14 +122,11 @@ pub fn gen_sub_derive(name: Ident, data: DataStruct, generics: Generics) -> Toke
     )
 }
 
-pub fn gen_mul_derive(
-    name: Ident,
-    data: DataStruct,
-    inner_type: Type,
-    generics: Generics,
+pub fn gen_mul_impls(
+    name: &Ident,
+    data: &DataStruct,
+    inner_type: &Type,
 ) -> TokenStream2 {
-    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
-
     let mut mul_params = TokenStream2::new();
     let mut mul_inner_params = TokenStream2::new();
     for field in data.fields.iter() {
@@ -154,7 +144,7 @@ pub fn gen_mul_derive(
     }
 
     quote!(
-        impl #impl_generics ::std::ops::Mul for #name #ty_generics #where_clause {
+        impl<#inner_type: Copy + ::std::ops::Mul<Output = #inner_type>> ::std::ops::Mul for #name<#inner_type> {
             type Output = Self;
 
             fn mul(self, rhs: Self) -> Self {
@@ -164,13 +154,13 @@ pub fn gen_mul_derive(
             }
         }
 
-        impl #impl_generics ::std::ops::MulAssign for #name #ty_generics #where_clause {
+        impl<#inner_type: Copy + ::std::ops::Mul<Output = #inner_type>> ::std::ops::MulAssign for #name<#inner_type> {
             fn mul_assign(&mut self, rhs: Self) {
                 *self = self.mul(rhs)
             }
         }
 
-        impl #impl_generics ::std::ops::Mul<#inner_type> for #name #ty_generics #where_clause {
+        impl<#inner_type: Copy + ::std::ops::Mul<Output = #inner_type>> ::std::ops::Mul<#inner_type> for #name<#inner_type> {
             type Output = Self;
 
             fn mul(self, rhs: #inner_type) -> Self {
@@ -180,7 +170,7 @@ pub fn gen_mul_derive(
             }
         }
 
-        impl #impl_generics ::std::ops::MulAssign<#inner_type> for #name #ty_generics #where_clause {
+        impl<#inner_type: Copy + ::std::ops::Mul<Output = #inner_type>> ::std::ops::MulAssign<#inner_type> for #name<#inner_type> {
             fn mul_assign(&mut self, rhs: #inner_type) {
                 *self = self.mul(rhs)
             }
@@ -188,14 +178,11 @@ pub fn gen_mul_derive(
     )
 }
 
-pub fn gen_div_derive(
-    name: Ident,
-    data: DataStruct,
-    inner_type: Type,
-    generics: Generics,
+pub fn gen_div_impls(
+    name: &Ident,
+    data: &DataStruct,
+    inner_type: &Type,
 ) -> TokenStream2 {
-    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
-
     let mut div_params = TokenStream2::new();
     let mut div_inner_params = TokenStream2::new();
     for field in data.fields.iter() {
@@ -213,7 +200,7 @@ pub fn gen_div_derive(
     }
 
     quote!(
-        impl #impl_generics ::std::ops::Div for #name #ty_generics #where_clause {
+        impl<#inner_type: Copy + ::std::ops::Div<Output = #inner_type>> ::std::ops::Div for #name<#inner_type> {
             type Output = Self;
 
             fn div(self, rhs: Self) -> Self {
@@ -223,13 +210,13 @@ pub fn gen_div_derive(
             }
         }
 
-        impl #impl_generics ::std::ops::DivAssign for #name #ty_generics #where_clause {
+        impl<#inner_type: Copy + ::std::ops::Div<Output = #inner_type>> ::std::ops::DivAssign for #name<#inner_type> {
             fn div_assign(&mut self, rhs: Self) {
                 *self = self.div(rhs)
             }
         }
 
-        impl #impl_generics ::std::ops::Div<#inner_type> for #name #ty_generics #where_clause {
+        impl<#inner_type: Copy + ::std::ops::Div<Output = #inner_type>> ::std::ops::Div<#inner_type> for #name<#inner_type> {
             type Output = Self;
 
             fn div(self, rhs: #inner_type) -> Self {
@@ -239,7 +226,7 @@ pub fn gen_div_derive(
             }
         }
 
-        impl #impl_generics ::std::ops::DivAssign<#inner_type> for #name #ty_generics #where_clause {
+        impl<#inner_type: Copy + ::std::ops::Div<Output = #inner_type>> ::std::ops::DivAssign<#inner_type> for #name<#inner_type> {
             fn div_assign(&mut self, rhs: #inner_type) {
                 *self = self.div(rhs)
             }
@@ -247,9 +234,7 @@ pub fn gen_div_derive(
     )
 }
 
-pub fn gen_neg_derive(name: Ident, data: DataStruct, generics: Generics) -> TokenStream2 {
-    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
-
+pub fn gen_neg_impls(name: &Ident, data: &DataStruct, inner_type: &Type) -> TokenStream2 {
     let mut neg_params = TokenStream2::new();
     for field in data.fields.iter() {
         let field_ident = field.ident.as_ref().unwrap();
@@ -261,7 +246,7 @@ pub fn gen_neg_derive(name: Ident, data: DataStruct, generics: Generics) -> Toke
     }
 
     quote!(
-        impl #impl_generics ::std::ops::Neg for #name #ty_generics #where_clause {
+        impl<#inner_type: Copy + ::std::ops::Neg<Output = #inner_type>> ::std::ops::Neg for #name<#inner_type> {
             type Output = Self;
 
             fn neg(self) -> Self {
@@ -273,14 +258,11 @@ pub fn gen_neg_derive(name: Ident, data: DataStruct, generics: Generics) -> Toke
     )
 }
 
-pub fn gen_dot_derive(
-    name: Ident,
-    data: DataStruct,
-    inner_type: Type,
-    generics: Generics,
+pub fn gen_dot_impls(
+    name: &Ident,
+    data: &DataStruct,
+    inner_type: &Type,
 ) -> TokenStream2 {
-    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
-
     let mut dot_expr = TokenStream2::new();
     for (i, field) in data.fields.iter().enumerate() {
         let field_ident = field.ident.as_ref().unwrap();
@@ -296,7 +278,7 @@ pub fn gen_dot_derive(
     }
 
     quote!(
-        impl #impl_generics crate::vec::Dot for #name #ty_generics #where_clause {
+        impl<#inner_type: Copy + ::std::ops::Add<Output = #inner_type> + ::std::ops::Mul<Output = #inner_type>> crate::vec::Dot for #name<#inner_type> {
             type Output = #inner_type;
 
             fn dot(self, rhs: Self) -> #inner_type {
